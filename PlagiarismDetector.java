@@ -32,7 +32,7 @@ public class PlagiarismDetector {
 		for (int i = 0; i < files.length; i++) {
 			String file1 = files[i];
 
-			for (int j = 0; j < files.length; j++) { 
+			for (int j = i+1; j < files.length; j++) {
 				String file2 = files[j];
 
 				// create phrases for each file
@@ -103,16 +103,21 @@ public class PlagiarismDetector {
 		if (window < 1) return null;
 		
 		Set<String> phrases = new HashSet<String>();
+
+		String phrase = words.get(0);
+		for (int i = 1; i < window; i++) {
+			phrase += " " + words.get(i);
+		}
 		
 		// create phrases of size "window" and add to Set
 		for (int i = 0; i < words.size() - window + 1; i++) {
-			String phrase = "";
-			for (int j = 0; j < window; j++) {
-				phrase += words.get(i+j) + " ";
-			}
 
 			if (phrases.contains(phrase) == false)
 				phrases.add(phrase);
+
+			if (i < words.size() - window) {
+				phrase = phrase.substring(phrase.indexOf(" ") + 1) + " " + words.get(i + window);
+			}
 
 		}
 		
@@ -132,6 +137,7 @@ public class PlagiarismDetector {
 		if (myPhrases != null && yourPhrases != null) {
 		
 			for (String mine : myPhrases) {
+				if (matches.contains(mine)) continue;
 				for (String yours : yourPhrases) {
 					if (mine.equalsIgnoreCase(yours)) {
 						matches.add(mine);
