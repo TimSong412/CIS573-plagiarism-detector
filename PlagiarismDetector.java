@@ -27,6 +27,13 @@ public class PlagiarismDetector {
 		if (files == null) throw new IllegalArgumentException();
 		
 		Map<String, Integer> numberOfMatches = new HashMap<String, Integer>();
+
+		List<Set<String>> phrases = new ArrayList<Set<String>>();
+		for (String file : files) {
+			Set<String> filePhrases = createPhrases(dirName + "/" + file, windowSize);
+			if (filePhrases == null) return null;
+			phrases.add(filePhrases);
+		}
 		
 		// compare each file to all other files
 		for (int i = 0; i < files.length; i++) {
@@ -35,13 +42,10 @@ public class PlagiarismDetector {
 			for (int j = i+1; j < files.length; j++) {
 				String file2 = files[j];
 
-				// create phrases for each file
-				Set<String> file1Phrases = createPhrases(dirName + "/" + file1, windowSize); 
-				Set<String> file2Phrases = createPhrases(dirName + "/" + file2, windowSize); 
-				
-				if (file1Phrases == null || file2Phrases == null)
-					return null;
-				
+				// get phrases for each file
+				Set<String> file1Phrases = phrases.get(i);
+				Set<String> file2Phrases = phrases.get(j);
+
 				// find matching phrases in each Set
 				Set<String> matches = findMatches(file1Phrases, file2Phrases);
 				
@@ -137,7 +141,6 @@ public class PlagiarismDetector {
 		if (myPhrases != null && yourPhrases != null) {
 		
 			for (String mine : myPhrases) {
-				if (matches.contains(mine)) continue;
 				for (String yours : yourPhrases) {
 					if (mine.equalsIgnoreCase(yours)) {
 						matches.add(mine);
