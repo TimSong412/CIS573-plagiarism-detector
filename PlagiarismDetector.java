@@ -47,16 +47,16 @@ public class PlagiarismDetector {
 				Set<String> file2Phrases = phrases.get(j);
 
 				// find matching phrases in each Set
-				Set<String> matches = findMatches(file1Phrases, file2Phrases);
+				int matches = findMatches(file1Phrases, file2Phrases);
 				
-				if (matches == null)
+				if (matches < 0)
 					return null;
 
 				// if the number of matches exceeds the threshold, add it to the Map
-				if (matches.size() > threshold) {
+				if (matches > threshold) {
 					String key = file1 + "-" + file2;
 					if (numberOfMatches.containsKey(file2 + "-" + file1) == false && file1.equals(file2) == false) {
-						numberOfMatches.put(key,matches.size());
+						numberOfMatches.put(key,matches);
 					}
 				}				
 			}
@@ -134,22 +134,29 @@ public class PlagiarismDetector {
 	 * Returns a Set of Strings that occur in both of the Set parameters.
 	 * However, the comparison is case-insensitive.
 	 */
-	private static Set<String> findMatches(Set<String> myPhrases, Set<String> yourPhrases) {
-	
-		Set<String> matches = new HashSet<String>();
-		
+	private static int findMatches(Set<String> myPhrases, Set<String> yourPhrases) {
+
+
+		int countmatches = 0;
+
+
 		if (myPhrases != null && yourPhrases != null) {
-		
+			Set<String> yourPhrasesLower = new HashSet<String>();
+			for (String phrase : yourPhrases) {
+				yourPhrasesLower.add(phrase.toLowerCase());
+			}
 			for (String mine : myPhrases) {
-				for (String yours : yourPhrases) {
-					if (mine.equalsIgnoreCase(yours)) {
-						matches.add(mine);
-					}
+				if (yourPhrasesLower.contains(mine.toLowerCase())) {
+//					matches.add(mine);
+					countmatches++;
 				}
 			}
+			return countmatches;
 		}
-		
-		return matches;
+		else {
+			return -1;
+		}
+
 	}
 	
 	
